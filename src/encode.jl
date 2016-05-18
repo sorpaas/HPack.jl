@@ -1,9 +1,8 @@
-function encode_string_literal(buf::IOBuffer, table::DynamicTable, data::Array{UInt8}, huffman=true)
+function encode_string_literal(buf::IOBuffer, table::DynamicTable, data::Array{UInt8}; huffman=true)
+    mask::UInt8 = 0x0
     if huffman
+        mask = 0x80
         data = huffman_encode_bytes(data)
-        mask::UInt8 = 0x80
-    else
-        mask::UInt8 = 0x0
     end
 
     h = mask | UInt8(length(data))
@@ -11,22 +10,22 @@ function encode_string_literal(buf::IOBuffer, table::DynamicTable, data::Array{U
     write(buf, data)
 end
 
-function encode_literal(buf::IOBuffer, table::DynamicTable, header::(Array{UInt8}, Array{UInt8}), should_index=true)
+function encode_literal(buf::IOBuffer, table::DynamicTable, header::Header; should_index=true, options...)
     mask::UInt8 = 0x0
     if should_index
-        mask::UInt8 = 0x40
+        mask = 0x40
         add_header!(table, header)
     end
     write(buf, mask)
 
-    encode_string_literal(buf, table, header[1])
-    encode_string_literal(buf, table, header[2])
+    encode_string_literal(buf, table, header[1]; options...)
+    encode_string_literal(buf, table, header[2]; options...)
 end
 
-function encode(table::DynamicTable, headers: Array{(Array{UInt8}, Array{UInt8})})
+function encode(table::DynamicTable, headers::Array{Header, 1}; options...)
     buf = IOBuffer()
     for i = 1:length(headers)
-        encode_literal(buf, table, headers[i])
+        encode_literal(buf, table, headers[i]; options...)
     end
 
     return takebuf_array(buf)

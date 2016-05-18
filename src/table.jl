@@ -1,7 +1,13 @@
+typealias Header Tuple{Array{UInt8, 1}, Array{UInt8, 1}}
+
 type DynamicTable
-    table::Array{Tuple{Array{UInt8}, Array{UInt8}}}
+    table::Array{Header, 1}
     size::Int
     max_size::Int
+end
+
+function new_dynamic_table()
+    DynamicTable(Array{Header, 1}(), 0, 4096)
 end
 
 function consolidate_table!(table::DynamicTable)
@@ -11,7 +17,9 @@ function consolidate_table!(table::DynamicTable)
     end
 end
 
-function add_header!(table::DynamicTable, name::Array{UInt8}, value::Array{UInt8})
+function add_header!(table::DynamicTable, header::Header)
+    name = header[1]
+    value = header[2]
     table.size += length(name) + length(value) + 32
     unshift!(table.table, (name, value))
     consolidate_table!(table)
@@ -87,7 +95,7 @@ STATIC_TABLE =
      (b"www-authenticate", b"")
      ]
 
-function get_header(table::DynamicTable, index:Int)
+function get_header(table::DynamicTable, index::Int)
     # IETF's table indexing is 1-based.
     if index <= length(STATIC_TABLE)
         return STATIC_TABLE[index]
