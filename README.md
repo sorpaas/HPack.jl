@@ -1,5 +1,7 @@
 # HPack
 
+[![Build Status](https://travis-ci.org/sorpaas/HPack.jl.svg?branch=master)](https://travis-ci.org/sorpaas/HPack.jl)
+
 A pure Julia implementation for [HPACK specification](http://http2.github.io/http2-spec/compression.html), header compression for HTTP/2. This library is intended to be used with a HTTP/2 implementation.
 
 ## Quickstart
