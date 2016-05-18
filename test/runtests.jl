@@ -1,5 +1,6 @@
 using HPack
 using Base.Test
 
-# write your own tests here
-@test 1 == 1
+buf = IOBuffer()
+HPack.huffman_encode_bytes(buf, b"www.example.com")
+@test takebuf_array(buf) == [0xf1;0xe3;0xc2;0xe5;0xf2;0x3a;0x6b;0xa0;0xab;0x90;0xf4;0xff]
