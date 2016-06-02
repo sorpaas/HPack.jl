@@ -31,7 +31,7 @@ end
 function decode_string(buf::IOBuffer)
     huffman = buf.data[buf.ptr] & 128 == 128
     len = decode_integer(buf, 7)
-    str = readbytes(buf, nb=len)
+    str = readbytes(buf, len)
     if huffman
         str = huffman_decode_bytes(str)
     end
