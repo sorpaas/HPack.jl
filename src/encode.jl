@@ -41,7 +41,7 @@ end
 
 function encode(table::DynamicTable, headers::Headers; options...)
     buf = IOBuffer()
-    for header in headers
+    for header in sort(collect(headers))
         index = find_totally_indexed(convert(Array{UInt8, 1}, header[1]),
                                      convert(Array{UInt8, 1}, header[2]))
         if isnull(index)
