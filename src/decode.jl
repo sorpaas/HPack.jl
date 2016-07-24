@@ -65,28 +65,28 @@ function decode_indexed(table::DynamicTable, buf::IOBuffer)
 end
 
 function decode(table::DynamicTable, buf::IOBuffer)
-    header_list = Array{Header, 1}()
+    headers = Headers()
 
     while !eof(buf)
         initial_octet = buf.data[buf.ptr]
 
         if initial_octet & 128 == 128 # Indexed
             header = decode_indexed(table, buf)
-            push!(header_list, header)
+            headers[ascii(header[1])] = ascii(header[2])
         elseif initial_octet & 64 == 64 # Literal with incremental indexing
             header = decode_literal(table, buf, true)
-            push!(header_list, header)
+            headers[ascii(header[1])] = ascii(header[2])
         elseif initial_octet & 32 == 32 # Size update
             new_size = decode_integer(buf, 5)
             set_max_table_size!(table, new_size)
         elseif initial_octet & 16 == 16 # Literal never indexed
             header = decode_literal(table, buf, false)
-            push!(header_list, header)
+            headers[ascii(header[1])] = ascii(header[2])
         else # Literal without indexing
             header = decode_literal(table, buf, false)
-            push!(header_list, header)
+            headers[ascii(header[1])] = ascii(header[2])
         end
     end
 
-    return header_list
+    return headers
 end

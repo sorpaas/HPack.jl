@@ -1,5 +1,6 @@
 using HPack
 using Base.Test
+import HttpCommon: Headers
 
 @test HPack.huffman_encode_bytes(b"www.example.com") ==
     [0xf1; 0xe3; 0xc2; 0xe5; 0xf2; 0x3a; 0x6b; 0xa0; 0xab; 0x90; 0xf4; 0xff]
@@ -7,16 +8,16 @@ using Base.Test
 @test HPack.huffman_decode_bytes(HPack.huffman_encode_bytes(b"www.example.com")) == b"www.example.com"
 
 @test HPack.decode(HPack.new_dynamic_table(), IOBuffer([0x82; 0x84])) ==
-    [(b":method", b"GET")
-     (b":path", b"/")]
+    Headers(":method" => "GET",
+            ":path" => "/")
 
 ## Below are examples copied from Appendix C
 
 ### C.2.1
 
-headers = [(b"custom-key", b"custom-header")]
+headers = Headers("custom-key" => "custom-header")
 headers_raw =
-    [0x40; 0x0a; 0x63; 0x75; 0x73; 0x74; 0x6f; 0x6d; 0x2d; 0x6b; 0x65; 0x79;
+    [0x00; 0x0a; 0x63; 0x75; 0x73; 0x74; 0x6f; 0x6d; 0x2d; 0x6b; 0x65; 0x79;
      0x0d; 0x63; 0x75; 0x73; 0x74; 0x6f; 0x6d; 0x2d; 0x68; 0x65; 0x61; 0x64;
      0x65; 0x72]
 
@@ -27,7 +28,7 @@ headers_raw =
 
 ### C.2.2
 
-headers = [(b":path", b"/sample/path")]
+headers = Headers(":path" => "/sample/path")
 headers_raw =
     [0x04; 0x0c; 0x2f; 0x73; 0x61; 0x6d; 0x70; 0x6c; 0x65; 0x2f; 0x70; 0x61;
      0x74; 0x68]
@@ -38,18 +39,18 @@ headers_raw =
 
 ### Server and client examples
 
-request_headers = [(b":method", b"GET"),
-                   (b":path", b"/"),
-                   (b":scheme", b"http"),
-                   (b":authority", b"127.0.0.1:9000"),
-                   (b"accept", b"*/*"),
-                   (b"accept-encoding", b"gzip, deflate"),
-                   (b"user-agent", b"HTTP2.jl")]
+request_headers = Headers(":method" => "GET",
+                          ":path" => "/",
+                          ":scheme" => "http",
+                          ":authority" => "127.0.0.1:9000",
+                          "accept" => "*/*",
+                          "accept-encoding" => "gzip, deflate",
+                          "user-agent" => "HTTP2.jl")
 
-response_headers = [(b":status", b"404"),
-                    (b"server", b"nghttpd nghttpd2/1.10.0"),
-                    (b"date", b"Thu, 02 Jun 2016 19:00:13 GMT"),
-                    (b"content-type", b"text/html; charset=UTF-8")]
+response_headers = Headers(":status" => "404",
+                           "server" => "nghttpd nghttpd2/1.10.0",
+                           "date" => "Thu, 02 Jun 2016 19:00:13 GMT",
+                           "content-type" => "text/html; charset=UTF-8")
 
 client_dt = HPack.new_dynamic_table()
 server_dt = HPack.new_dynamic_table()
@@ -69,9 +70,6 @@ HPack.encode(client_dt, request_headers; huffman=false)
 response_headers = HPack.decode(client_dt, IOBuffer(response_headers_raw))
 println("Headers")
 println("======================")
-for i = 1:length(response_headers)
-    print(ascii(response_headers[i][1]))
-    print(": ")
-    print(ascii(response_headers[i][2]))
-    print("\n")
+for header in response_headers
+    println(header)
 end

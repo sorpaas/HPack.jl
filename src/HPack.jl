@@ -1,5 +1,7 @@
 module HPack
 
+import HttpCommon: Headers
+
 # package code goes here
 include("table.jl")
 include("huffman.jl")
