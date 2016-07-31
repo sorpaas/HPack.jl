@@ -61,6 +61,9 @@ end
 
 function decode_indexed(table::DynamicTable, buf::IOBuffer)
     index = decode_integer(buf, 7)
+    if index == 0
+        throw(DecodeError("Index must not be zero."))
+    end
     return get_header(table, index)
 end
 

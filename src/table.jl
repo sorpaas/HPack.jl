@@ -1,13 +1,14 @@
-typealias Header Tuple{Array{UInt8, 1}, Array{UInt8, 1}}
+typealias HeaderBinary Tuple{Array{UInt8, 1}, Array{UInt8, 1}}
+typealias Header Tuple{AbstractString, AbstractString}
 
 type DynamicTable
-    table::Array{Header, 1}
+    table::Array{HeaderBinary, 1}
     size::Int
     max_size::Int
 end
 
 function new_dynamic_table()
-    DynamicTable(Array{Header, 1}(), 0, 4096)
+    DynamicTable(Array{HeaderBinary, 1}(), 0, 4096)
 end
 
 function consolidate_table!(table::DynamicTable)
@@ -17,12 +18,17 @@ function consolidate_table!(table::DynamicTable)
     end
 end
 
-function add_header!(table::DynamicTable, header::Header)
+function add_header!(table::DynamicTable, header::HeaderBinary)
     name = header[1]
     value = header[2]
     table.size += length(name) + length(value) + 32
     unshift!(table.table, (name, value))
     consolidate_table!(table)
+end
+
+function add_header!(table::DynamicTable, header::Header)
+    add_header!(table, (convert(Array{UInt8, 1}, header[1]),
+                        convert(Array{UInt8, 1}, header[2])))
 end
 
 function set_max_table_size!(table::DynamicTable, size::Int)
@@ -100,6 +106,14 @@ function get_header(table::DynamicTable, index::Int)
     if index <= length(STATIC_TABLE)
         return STATIC_TABLE[index]
     else
-        return table.table[index - length(STATIC_TABLE) ]
+        if index > length(STATIC_TABLE) + table.max_size
+            throw(DecodeError("Index greater than sum of both static and dynamic tables."))
+        else
+            if index > length(STATIC_TABLE) + length(table.table)
+                throw(DecodeError("Index out of bound."))
+            else
+                return table.table[index - length(STATIC_TABLE)]
+            end
+        end
     end
 end

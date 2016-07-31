@@ -10,7 +10,7 @@ function encode_string_literal(buf::IOBuffer, data::Array{UInt8}; huffman=true)
     write(buf, data)
 end
 
-function encode_literal(buf::IOBuffer, header::Header; options...)
+function encode_literal(buf::IOBuffer, header::HeaderBinary; options...)
     mask::UInt8 = 0x0
     write(buf, mask)
 
@@ -18,7 +18,7 @@ function encode_literal(buf::IOBuffer, header::Header; options...)
     encode_string_literal(buf, header[2]; options...)
 end
 
-function encode_indexed(buf::IOBuffer, index::UInt8, header::Header; options...)
+function encode_indexed(buf::IOBuffer, index::UInt8, header::HeaderBinary; options...)
     mask::UInt8 = 0x40
     write(buf, mask | index)
 
