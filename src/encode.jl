@@ -52,5 +52,5 @@ function encode(table::DynamicTable, headers::Headers; options...)
         end
     end
 
-    return takebuf_array(buf)
+    return take!(buf)
 end
