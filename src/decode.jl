@@ -31,7 +31,7 @@ end
 function decode_string(buf::IOBuffer)
     huffman = buf.data[buf.ptr] & 128 == 128
     len = decode_integer(buf, 7)
-    str = readbytes(buf, len)
+    str = read(buf, len)
     if huffman
         str = huffman_decode_bytes(str)
     end
@@ -75,10 +75,10 @@ function decode(table::DynamicTable, buf::IOBuffer)
 
         if initial_octet & 128 == 128 # Indexed
             header = decode_indexed(table, buf)
-            headers[ascii(header[1])] = ascii(header[2])
+            headers[ascii(Compat.String(header[1]))] = ascii(Compat.String(header[2]))
         elseif initial_octet & 64 == 64 # Literal with incremental indexing
             header = decode_literal(table, buf, true)
-            headers[ascii(header[1])] = ascii(header[2])
+            headers[ascii(Compat.String(header[1]))] = ascii(Compat.String(header[2]))
         elseif initial_octet & 32 == 32 # Size update
             new_size = decode_integer(buf, 5)
             set_max_table_size!(table, new_size)
@@ -87,7 +87,7 @@ function decode(table::DynamicTable, buf::IOBuffer)
             headers[ascii(header[1])] = ascii(header[2])
         else # Literal without indexing
             header = decode_literal(table, buf, false)
-            headers[ascii(header[1])] = ascii(header[2])
+            headers[ascii(Compat.String(header[1]))] = ascii(Compat.String(header[2]))
         end
     end
 

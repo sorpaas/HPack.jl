@@ -1,5 +1,7 @@
 module HPack
 
+using Compat
+
 import HttpCommon: Headers
 
 type DecodeError <: Exception

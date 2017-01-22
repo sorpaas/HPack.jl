@@ -1,4 +1,4 @@
-HUFFMAN_SYMBOL_TABLE =
+const HUFFMAN_SYMBOL_TABLE =
     [
      [13 0x1ff8]
      [23 0x7fffd8]
@@ -259,7 +259,7 @@ HUFFMAN_SYMBOL_TABLE =
      [30 0x3fffffff]
      ]
 
-HUFFMAN_DECODE_TABLE =
+const HUFFMAN_DECODE_TABLE =
     [
      [
       [4 0x00 0]

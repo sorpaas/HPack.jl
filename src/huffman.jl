@@ -27,7 +27,7 @@ function huffman_encode_bytes(data::Array{UInt8}, offset::Int=0, length::Int=len
         write(out, UInt8(current))
     end
 
-    return takebuf_array(out)
+    return take!(out)
 end
 
 
@@ -63,5 +63,5 @@ function huffman_decode_bytes(buf::Array{UInt8}, length::Int=length(buf))
         return Nullable{Array{UInt8}} # Decoder ended prematurely
     end
 
-    return takebuf_array(out)
+    return take!(out)
 end

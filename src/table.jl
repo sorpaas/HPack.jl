@@ -101,7 +101,7 @@ STATIC_TABLE =
      (b"www-authenticate", b"")
      ]
 
-function get_header(table::DynamicTable, index::Int)
+function get_header(table::DynamicTable, index)
     # IETF's table indexing is 1-based.
     if index <= length(STATIC_TABLE)
         return STATIC_TABLE[index]
