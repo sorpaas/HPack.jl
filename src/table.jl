@@ -1,5 +1,5 @@
-typealias HeaderBinary Tuple{Array{UInt8, 1}, Array{UInt8, 1}}
-typealias Header Tuple{AbstractString, AbstractString}
+const HeaderBinary = Tuple{Array{UInt8, 1}, Array{UInt8, 1}}
+const Header = Tuple{AbstractString, AbstractString}
 
 type DynamicTable
     table::Array{HeaderBinary, 1}
