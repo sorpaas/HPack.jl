@@ -7,6 +7,9 @@ A pure Julia implementation for
 header compression for HTTP/2. This library is intended to be used with a HTTP/2
 implementation.
 
+Note: `JuliaWeb/HTTP.jl` includes a work-in-progress HPack decoder for Julia 1.0:
+https://github.com/JuliaWeb/HTTP.jl/blob/so/lazyprep/src/HPack.jl
+
 ## Quickstart
 
 The main functionality of HPack are in the `encode` and `decode` function. HPack
