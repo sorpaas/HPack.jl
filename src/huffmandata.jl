@@ -260,7 +260,7 @@ const HUFFMAN_SYMBOL_TABLE =
      ]
 
 const HUFFMAN_DECODE_TABLE =
-    [
+    UInt8[
      [
       [4 0x00 0]
       [5 0x00 0]

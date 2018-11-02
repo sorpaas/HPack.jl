@@ -1,14 +1,13 @@
 module HPack
 
-using Compat
-
-import HttpCommon: Headers
-
-type DecodeError <: Exception
+struct DecodeError <: Exception
     message::AbstractString
 end
 
 # package code goes here
+bytearr(a::Vector{UInt8}) = a
+bytearr(cs::Base.CodeUnits{UInt8,String}) = convert(Vector{UInt8}, cs)
+bytearr(s::String) = bytearr(codeunits(s))
 include("table.jl")
 include("huffman.jl")
 include("encode.jl")

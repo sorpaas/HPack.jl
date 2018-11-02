@@ -1,30 +1,27 @@
-@test HPack.huffman_encode_bytes(b"www.example.com") ==
+@test HPack.huffman_encode_bytes(HPack.bytearr("www.example.com")) ==
     [0xf1; 0xe3; 0xc2; 0xe5; 0xf2; 0x3a; 0x6b; 0xa0; 0xab; 0x90; 0xf4; 0xff]
 
-@test HPack.huffman_decode_bytes(HPack.huffman_encode_bytes(b"www.example.com")) == b"www.example.com"
+@test HPack.huffman_decode_bytes(HPack.huffman_encode_bytes(HPack.bytearr("www.example.com"))) == convert(Vector{UInt8},b"www.example.com")
 
-@test HPack.decode(HPack.new_dynamic_table(), IOBuffer([0x82; 0x84])) ==
-    Headers(":method" => "GET",
-            ":path" => "/")
+@test HPack.decode(HPack.new_dynamic_table(), IOBuffer([0x82; 0x84])) == Dict(":method" => "GET", ":path" => "/")
 
 ## Below are examples copied from Appendix C
 
 ### C.2.1
 
-headers = Headers("custom-key" => "custom-header")
+headers = Dict("custom-key" => "custom-header")
 headers_raw =
     [0x00; 0x0a; 0x63; 0x75; 0x73; 0x74; 0x6f; 0x6d; 0x2d; 0x6b; 0x65; 0x79;
      0x0d; 0x63; 0x75; 0x73; 0x74; 0x6f; 0x6d; 0x2d; 0x68; 0x65; 0x61; 0x64;
      0x65; 0x72]
 
-@test HPack.encode(HPack.new_dynamic_table(), headers; huffman=false) ==
-    headers_raw
+@test HPack.encode(HPack.new_dynamic_table(), headers; huffman=false) == headers_raw
 
 @test HPack.decode(HPack.new_dynamic_table(), IOBuffer(headers_raw)) == headers
 
 ### C.2.2
 
-headers = Headers(":path" => "/sample/path")
+headers = Dict(":path" => "/sample/path")
 headers_raw =
     [0x04; 0x0c; 0x2f; 0x73; 0x61; 0x6d; 0x70; 0x6c; 0x65; 0x2f; 0x70; 0x61;
      0x74; 0x68]
@@ -35,7 +32,7 @@ headers_raw =
 
 ### Server and client examples
 
-request_headers = Headers(":method" => "GET",
+request_headers = Dict(":method" => "GET",
                           ":path" => "/",
                           ":scheme" => "http",
                           ":authority" => "127.0.0.1:9000",
@@ -43,7 +40,7 @@ request_headers = Headers(":method" => "GET",
                           "accept-encoding" => "gzip, deflate",
                           "user-agent" => "HTTP2.jl")
 
-response_headers = Headers(":status" => "404",
+response_headers = Dict(":status" => "404",
                            "server" => "nghttpd nghttpd2/1.10.0",
                            "date" => "Thu, 02 Jun 2016 19:00:13 GMT",
                            "content-type" => "text/html; charset=UTF-8")

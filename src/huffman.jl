@@ -44,7 +44,7 @@ function huffman_decode_bytes(buf::Array{UInt8}, length::Int=length(buf))
             flags = t[2]
 
             if flags & 0x4 != 0 # Decode fail
-                return Nullable{Array{UInt8}}()
+                return nothing
             end
 
             if flags & 0x2 != 0 # Decode success
@@ -60,7 +60,7 @@ function huffman_decode_bytes(buf::Array{UInt8}, length::Int=length(buf))
     end
 
     if !accept
-        return Nullable{Array{UInt8}} # Decoder ended prematurely
+        return nothing # Decoder ended prematurely
     end
 
     return take!(out)

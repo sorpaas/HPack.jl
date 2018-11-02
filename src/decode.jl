@@ -67,27 +67,25 @@ function decode_indexed(table::DynamicTable, buf::IOBuffer)
     return get_header(table, index)
 end
 
+add_hdr(headers::Dict{String,String}, header::HeaderBinary) = headers[String(copy(header[1]))] = String(copy(header[2]))
+
 function decode(table::DynamicTable, buf::IOBuffer)
-    headers = Headers()
+    headers = Dict{String,String}()
 
     while !eof(buf)
         initial_octet = buf.data[buf.ptr]
 
         if initial_octet & 128 == 128 # Indexed
-            header = decode_indexed(table, buf)
-            headers[ascii(Compat.String(header[1]))] = ascii(Compat.String(header[2]))
+            add_hdr(headers, decode_indexed(table, buf))
         elseif initial_octet & 64 == 64 # Literal with incremental indexing
-            header = decode_literal(table, buf, true)
-            headers[ascii(Compat.String(header[1]))] = ascii(Compat.String(header[2]))
+            add_hdr(headers, decode_literal(table, buf, true))
         elseif initial_octet & 32 == 32 # Size update
             new_size = decode_integer(buf, 5)
             set_max_table_size!(table, new_size)
         elseif initial_octet & 16 == 16 # Literal never indexed
-            header = decode_literal(table, buf, false)
-            headers[ascii(header[1])] = ascii(header[2])
+            add_hdr(headers, decode_literal(table, buf, false))
         else # Literal without indexing
-            header = decode_literal(table, buf, false)
-            headers[ascii(Compat.String(header[1]))] = ascii(Compat.String(header[2]))
+            add_hdr(headers, decode_literal(table, buf, false))
         end
     end
 

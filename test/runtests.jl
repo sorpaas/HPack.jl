@@ -1,6 +1,5 @@
 using HPack
-using Base.Test
-import HttpCommon: Headers
+using Test
 
 include("codes.jl")
 include("musts.jl")
