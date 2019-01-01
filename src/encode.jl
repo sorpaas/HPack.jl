@@ -34,7 +34,6 @@ find_totally_indexed(name::Vector{UInt8}, value::Vector{UInt8}) = findfirst(x->x
 
 function encode(table::DynamicTable, headers; options...)
     buf = IOBuffer()
-    #for header in sort(collect(headers))
     for header in headers
         index = find_totally_indexed(bytearr(header[1]), bytearr(header[2]))
         if index === nothing
