@@ -30,23 +30,16 @@ function encode_totally_indexed(buf::IOBuffer, index::UInt8; options...)
     write(buf, mask | index)
 end
 
-function find_totally_indexed(name::Array{UInt8, 1}, value::Array{UInt8, 1})
-    for i = 1:length(STATIC_TABLE)
-        if STATIC_TABLE[i][1] == name && STATIC_TABLE[i][2] == value
-            return UInt8(i)
-        end
-    end
-    return nothing
-end
+find_totally_indexed(name::Vector{UInt8}, value::Vector{UInt8}) = findfirst(x->x==(name,value), STATIC_TABLE)
 
 function encode(table::DynamicTable, headers; options...)
     buf = IOBuffer()
-    for header in sort(collect(headers))
+    for header in headers
         index = find_totally_indexed(bytearr(header[1]), bytearr(header[2]))
         if index === nothing
             encode_literal(buf, (bytearr(header[1]), bytearr(header[2])); options...)
         else
-            encode_totally_indexed(buf, index; options...)
+            encode_totally_indexed(buf, UInt8(index); options...)
         end
     end
 

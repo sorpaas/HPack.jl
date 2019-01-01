@@ -1,14 +1,15 @@
-const HeaderBinary = Tuple{Array{UInt8, 1}, Array{UInt8, 1}}
+const HeaderBinary = Tuple{Vector{UInt8}, Vector{UInt8}}
 const Header = Tuple{String, String}
 
 mutable struct DynamicTable
-    table::Array{HeaderBinary, 1}
+    table::Vector{HeaderBinary}
     size::Int
     max_size::Int
-end
 
-function new_dynamic_table()
-    DynamicTable(Array{HeaderBinary, 1}(), 0, 4096)
+    # 4096 is the initial value of SETTINGS_HEADER_TABLE_SIZE (rfc7540)
+    function DynamicTable(max_size::Int=4096)
+        new(Vector{HeaderBinary}(), 0, max_size)
+    end
 end
 
 function consolidate_table!(table::DynamicTable)
@@ -18,25 +19,20 @@ function consolidate_table!(table::DynamicTable)
     end
 end
 
-function add_header!(table::DynamicTable, header::HeaderBinary)
-    name = header[1]
-    value = header[2]
+function add_header!(table::DynamicTable, name::Vector{UInt8}, value::Vector{UInt8})
     table.size += length(name) + length(value) + 32
     pushfirst!(table.table, (name, value))
     consolidate_table!(table)
 end
-
-function add_header!(table::DynamicTable, header::Header)
-    add_header!(table, (bytearr(header[1]), bytearr(header[2])))
-end
+add_header!(table::DynamicTable, header::HeaderBinary) = add_header!(table, header[1], header[2])
+add_header!(table::DynamicTable, header::Header) = add_header!(table, bytearr(header[1]), bytearr(header[2]))
 
 function set_max_table_size!(table::DynamicTable, size::Int)
     table.max_size = size
     consolidate_table!(table)
 end
 
-const STATIC_TABLE =
-    [
+const STATIC_TABLE = [
      (bytearr(":authority"                    ), bytearr(""             ))
      (bytearr(":method"                       ), bytearr("GET"          ))
      (bytearr(":method"                       ), bytearr("POST"         ))
@@ -51,7 +47,7 @@ const STATIC_TABLE =
      (bytearr(":status"                       ), bytearr("400"          ))
      (bytearr(":status"                       ), bytearr("404"          ))
      (bytearr(":status"                       ), bytearr("500"          ))
-     (bytearr("accept-"                       ), bytearr(""             ))
+     (bytearr("accept-charset"                ), bytearr(""             ))
      (bytearr("accept-encoding"               ), bytearr("gzip, deflate"))
      (bytearr("accept-language"               ), bytearr(""             ))
      (bytearr("accept-ranges"                 ), bytearr(""             ))
@@ -98,7 +94,7 @@ const STATIC_TABLE =
      (bytearr("vary"                          ), bytearr(""             ))
      (bytearr("via"                           ), bytearr(""             ))
      (bytearr("www-authenticate"              ), bytearr(""             ))
-     ]
+ ]
 
 function get_header(table::DynamicTable, index)
     # IETF's table indexing is 1-based.
