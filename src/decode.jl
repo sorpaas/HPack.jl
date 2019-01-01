@@ -67,10 +67,10 @@ function decode_indexed(table::DynamicTable, buf::IOBuffer)
     return get_header(table, index)
 end
 
-add_hdr(headers::Dict{String,String}, header::HeaderBinary) = headers[String(copy(header[1]))] = String(copy(header[2]))
+add_hdr(headers::Vector{Tuple{String,String}}, header::HeaderBinary) = push!(headers, (String(copy(header[1])), String(copy(header[2]))))
 
 function decode(table::DynamicTable, buf::IOBuffer)
-    headers = Dict{String,String}()
+    headers = Vector{Tuple{String,String}}()
 
     while !eof(buf)
         initial_octet = buf.data[buf.ptr]

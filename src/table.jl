@@ -1,14 +1,14 @@
-const HeaderBinary = Tuple{Array{UInt8, 1}, Array{UInt8, 1}}
+const HeaderBinary = Tuple{Vector{UInt8}, Vector{UInt8}}
 const Header = Tuple{String, String}
 
 mutable struct DynamicTable
-    table::Array{HeaderBinary, 1}
+    table::Vector{HeaderBinary}
     size::Int
     max_size::Int
-end
 
-function new_dynamic_table()
-    DynamicTable(Array{HeaderBinary, 1}(), 0, 4096)
+    function DynamicTable(max_size::Int=4096)
+        new(Vector{HeaderBinary}(), 0, max_size)
+    end
 end
 
 function consolidate_table!(table::DynamicTable)
@@ -51,7 +51,7 @@ const STATIC_TABLE =
      (bytearr(":status"                       ), bytearr("400"          ))
      (bytearr(":status"                       ), bytearr("404"          ))
      (bytearr(":status"                       ), bytearr("500"          ))
-     (bytearr("accept-"                       ), bytearr(""             ))
+     (bytearr("accept-charset"                ), bytearr(""             ))
      (bytearr("accept-encoding"               ), bytearr("gzip, deflate"))
      (bytearr("accept-language"               ), bytearr(""             ))
      (bytearr("accept-ranges"                 ), bytearr(""             ))
