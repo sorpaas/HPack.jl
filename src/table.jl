@@ -1,15 +1,13 @@
-const HeaderBinary = Tuple{Array{UInt8, 1}, Array{UInt8, 1}}
+const HeaderBinary = Tuple{Vector{UInt8}, Vector{UInt8}}
 const Header = Tuple{String, String}
 
 mutable struct DynamicTable
-    table::Array{HeaderBinary, 1}
+    table::Vector{HeaderBinary}
     size::Int
     max_size::Int
 end
 
-function new_dynamic_table()
-    DynamicTable(Array{HeaderBinary, 1}(), 0, 4096)
-end
+DynamicTable() = DynamicTable(HeaderBinary[], 0, 4096)
 
 function consolidate_table!(table::DynamicTable)
     while table.size > table.max_size
@@ -100,19 +98,15 @@ const STATIC_TABLE =
      (bytearr("www-authenticate"              ), bytearr(""             ))
      ]
 
+@noinline bounderr() =
+    throw(DecodeError("Index out of bound."))
+@noinline indexerr() =
+    throw(DecodeError("Index greater than sum of both static and dynamic tables."))
+
 function get_header(table::DynamicTable, index)
     # IETF's table indexing is 1-based.
-    if index <= length(STATIC_TABLE)
-        return STATIC_TABLE[index]
-    else
-        if index > length(STATIC_TABLE) + table.max_size
-            throw(DecodeError("Index greater than sum of both static and dynamic tables."))
-        else
-            if index > length(STATIC_TABLE) + length(table.table)
-                throw(DecodeError("Index out of bound."))
-            else
-                return table.table[index - length(STATIC_TABLE)]
-            end
-        end
-    end
+    index <= length(STATIC_TABLE) && return STATIC_TABLE[index]
+    (index > length(STATIC_TABLE) + table.max_size) && indexerr()
+    (index > length(STATIC_TABLE) + length(table.table)) && bounderr()
+    return table.table[index - length(STATIC_TABLE)]
 end

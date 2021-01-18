@@ -1,0 +1,19 @@
+name = "HPack"
+authors = [
+    "Wei Tang <hi@that.world>",
+    "Tanmay Mohapatra <tanmaykm@gmail.com>",
+    "ScottPJones <scottjones@alum.mit.edu>"
+]
+uuid = "28024e5f-9f70-4280-80a2-4be20479eed3"
+license = "MIT"
+desc = "Implementation of HPACK header compression for HTTP/2"
+version = "0.3.0"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[compat]
+julia = "1.5"
+
+[targets]
+test = ["Test"]
